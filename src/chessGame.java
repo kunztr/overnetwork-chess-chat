@@ -95,4 +95,7 @@ public class chessGame extends Application {
         }
         return null;
     }
+    void tyler(){
+
+    }
 }
