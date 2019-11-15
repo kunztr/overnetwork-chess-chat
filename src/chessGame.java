@@ -52,18 +52,18 @@ public class chessGame extends Application {
                 gp.add(cr, j, i);
             }
         }
-        Rectangle rect = new Rectangle(20, 20);
-        rect.setFill(Color.RED);
-        Rectangle rect1 = new Rectangle(20, 20);
-        rect1.setFill(Color.RED);
-        Rectangle rect2 = new Rectangle(20, 20);
-        rect2.setFill(Color.RED);
-        Rectangle rect3 = new Rectangle(20, 20);
-        rect3.setFill(Color.RED);
-        //pane.getChildren().add(rect);
+//        Rectangle rect = new Rectangle(20, 20);
+//        rect.setFill(Color.RED);
+//        Rectangle rect1 = new Rectangle(20, 20);
+//        rect1.setFill(Color.RED);
+//        Rectangle rect2 = new Rectangle(20, 20);
+//        rect2.setFill(Color.RED);
+//        Rectangle rect3 = new Rectangle(20, 20);
+//        rect3.setFill(Color.RED);
+//        //pane.getChildren().add(rect);
         pane.setCenter(gp);
-        pane.setLeft(rect);
-        pane.setRight(rect1);
+//        pane.setLeft(rect);
+//        pane.setRight(rect1);
         st.setTitle("Connect Four");
         st.setScene(new Scene(pane));
         st.show();
@@ -93,5 +93,5 @@ public class chessGame extends Application {
             }
         }
         return null;
-    }
+    }//
 }
