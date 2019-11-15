@@ -67,6 +67,7 @@ public class chessGame extends Application {
         st.setTitle("Connect Four");
         st.setScene(new Scene(pane));
         st.show();
+        //Tyler's comment
     }
 
     private void boardPane(){
