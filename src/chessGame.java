@@ -95,5 +95,7 @@ public class chessGame extends Application {
         }
         return null;
     }
-    public void asdfasgash() {}
+    public void asdfasgash() {
+
+    }
 }
