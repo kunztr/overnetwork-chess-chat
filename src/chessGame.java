@@ -97,7 +97,6 @@ public class chessGame extends Application {
         }
         return null;
     }//
-
     //Sets initial game board grid
     private void setInitGameBoard(){
         for(int y = gamegrid.length - 1; y >= 0; y--){
