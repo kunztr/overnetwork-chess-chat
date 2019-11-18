@@ -147,4 +147,10 @@ public class chessGame extends Application {
             System.out.println();
         }
     }
+
+    private void asdg() {
+        //325345
+
+
+    }
 }
