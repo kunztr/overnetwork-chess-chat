@@ -46,7 +46,7 @@ public class chessGame extends Application {
                         isSelected = true;
                     //}
                     //else {
-                    //    flash(getNode(row, column), isSelected);
+                    //    flash(getNodgie(row, column), isSelected);
                     }
                 });
                 gp.add(cr, j, i);
