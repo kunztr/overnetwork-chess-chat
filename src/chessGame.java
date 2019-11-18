@@ -20,12 +20,14 @@ public class chessGame extends Application {
     }
 
     private final int DIMENSION = 8;
-    private int[][] gamegrid = new int[DIMENSION][DIMENSION];
+    private ChessPiece[][] gamegrid = new ChessPiece[DIMENSION][DIMENSION];
     private BorderPane pane = new BorderPane();
     private GridPane gp = new GridPane();
     private Boolean isSelected = false;
     @Override
     public void start(Stage st) {
+        //setInitGameBoard();
+        //printGameBoard();
         gp.setPadding(new Insets(5));
         gp.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD, CornerRadii.EMPTY, Insets.EMPTY)));
         gp.setMaxSize(500,500);
@@ -95,4 +97,43 @@ public class chessGame extends Application {
         }
         return null;
     }//
+    //Sets initial game board grid
+    private void setInitGameBoard(){
+        for(int y = gamegrid.length - 1; y >= 0; y--){
+            for(int x = 0; x < gamegrid.length; x++){
+                ChessPiece cp = new ChessPiece("00");
+                if(y == 6){
+                    cp.setName(1 + "p");
+                }
+                else if(y == 7){
+                    if(x == 0 || x == 7){
+                        cp.setName(1 + "r");
+                    }
+                    else if (x == 1 || x == 6){
+                        cp.setName(1 + "n");
+                    }
+                    else if (x == 2 || x == 5){
+                        cp.setName(1 + "b");
+                    }
+                    else if (x == 3){
+                        cp.setName(1 + "k");
+                    }
+                    else{
+                        cp.setName(1 + "q");
+                    }
+
+                }
+                gamegrid[y][x] = cp;
+            }
+        }
+    }
+    //For testing
+    private void printGameBoard(){
+        for(int y = 0; y < gamegrid.length; y++) {
+            for (int x = 0; x < gamegrid.length; x++) {
+                System.out.print(gamegrid[y][x].getName() + " ");
+            }
+            System.out.println();
+        }
+    }
 }
