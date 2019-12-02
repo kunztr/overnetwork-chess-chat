@@ -5,10 +5,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -23,51 +28,85 @@ public class chessGame extends Application {
     private ChessPiece[][] gamegrid = new ChessPiece[DIMENSION][DIMENSION];
     private StackPane pane = new StackPane();
     private GridPane board = new GridPane();
-    private GridPane boardPieces = new GridPane();
+    private BorderPane face = new BorderPane();
     private Boolean isSelected = false;
     @Override
     public void start(Stage st) {
-        boardPieces.setMaxSize(500,500);
-        boardPieces.setPadding(new Insets(5));
-        setInitGameBoard();
-        printGameBoard();
         board.setPadding(new Insets(5));
         board.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD, CornerRadii.EMPTY, Insets.EMPTY)));
         board.setMaxSize(500,500);
+        gameBoard();
+        setInitGameBoard();
+        printGameBoard();
+        face.setCenter(board);
+        pane.getChildren().add(face);
+        pane.setAlignment(Pos.CENTER);
+        //pane.setRotate(180);
+        Scene scene2 = new Scene(pane);
+
+        VBox startPane = new VBox();
+        startPane.setPadding(new Insets(10));
+        startPane.setPrefSize(250,200);
+
+        Label name = new Label("Game of Chess");
+        name.setFont(new Font(25));
+
+        Label IPLabel = new Label("Enter IP Address");
+        TextField IP = new TextField();
+        IP.setMaxWidth(200);
+
+        Label PortLabel = new Label("Enter Port");
+        TextField Port = new TextField();
+        Port.setMaxWidth(200);
+
+        Button button1 = new Button("Start Game");
+        button1.setPadding(new Insets(20));
+        button1.setOnAction(e ->
+                st.setScene(scene2)
+        );
+        startPane.getChildren().addAll(IPLabel, IP, PortLabel, Port);
+
+        BorderPane startBP = new BorderPane();
+        startBP.setCenter(startPane);
+        startBP.setBottom(button1);
+        startBP.setTop(name);
+        startBP.setAlignment(name, Pos.CENTER);
+        startBP.setAlignment(button1, Pos.BOTTOM_RIGHT);
+        Scene scene = new Scene(startBP);
+        st.setResizable(false);
+        st.setTitle("Chess");
+        st.setScene(scene);
+        st.show();
+    }
+    private void gameBoard(){
         for (int i = 0; i < DIMENSION; i++) {
             for (int j = 0; j < DIMENSION; j++) {
-                Rectangle cr = new Rectangle(75, 75);
-                cr.setStroke(Color.BURLYWOOD);
+                Rectangle rect = new Rectangle(75, 75);
+                rect.setStroke(Color.BURLYWOOD);
                 if ((i + j) % 2 == 0) {
-                    cr.setFill(Color.MOCCASIN);
+                    rect.setFill(Color.MOCCASIN);
                 } else {
-                    cr.setFill(Color.BEIGE);
+                    rect.setFill(Color.BEIGE);
                 }
-                cr.setOnMouseClicked(e -> {
+                rect.setOnMouseClicked(e -> {
                     int column = board.getColumnIndex((Node) e.getSource());
                     int row = board.getRowIndex((Node) e.getSource());
                     if (!isSelected) {
                         flash(getNode(row, column), isSelected);
                         isSelected = true;
-                    //}
-                    //else {
-                    //    flash(getNode(row, column), isSelected);
+                        //}
+                        //else {
+                        //    flash(getNode(row, column), isSelected);
                     }
                 });
-                board.add(cr, j, i);
+                board.add(rect, j, i);
             }
         }
-        pane.getChildren().addAll(board, boardPieces);
-        pane.setAlignment(Pos.CENTER);
-        st.setTitle("Chess");
-        st.setScene(new Scene(pane));
-        st.show();
     }
-
-    private void boardPane(){
+    public void startMenu(){
 
     }
-    private void flash(Rectangle n, Boolean off) {
+    private void flash(Node n, Boolean off) {
         FadeTransition ft = new FadeTransition(Duration.millis(600), n);
         ft.setFromValue(1.0);
         ft.setToValue(0.1);
@@ -79,11 +118,12 @@ public class chessGame extends Application {
         }
     }
 
-    private Rectangle getNode(int row, int col) {
+
+    private Node getNode(int row, int col) {
         if (col <= board.getColumnCount() && row <= board.getRowCount()) {
             for (Node node : board.getChildren()) {
                 if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-                    return (Rectangle)node;
+                    return node;
                 }
             }
         }
@@ -145,7 +185,23 @@ public class chessGame extends Application {
                 gamegrid[y][x] = cp;
                 if (!piece.getColor().equals("null")) {
                     ImageView imgView = new ImageView(new Image(piece.getPieceURL()));
-                    boardPieces.add(imgView, y, x);
+                    imgView.setFitHeight(75);
+                    imgView.setFitWidth(75);
+                    imgView.setOnDragDetected(e -> {
+
+                    });
+//                    imgView.setOnMouseClicked(e -> {
+//                        int column = board.getColumnIndex((Node) e.getSource());
+//                        int row = board.getRowIndex((Node) e.getSource());
+//                        if (!isSelected) {
+//                            flash(getNode(row, column), isSelected);
+//                            isSelected = true;
+//                            //}
+//                            //else {
+//                            //    flash(getNode(row, column), isSelected);
+//                        }
+//                    });
+                    board.add(imgView, x, y);
                 }
             }
         }
@@ -159,11 +215,5 @@ public class chessGame extends Application {
             }
             System.out.println();
         }
-    }
-
-    private void asdg() {
-        //325345
-
-
     }
 }
