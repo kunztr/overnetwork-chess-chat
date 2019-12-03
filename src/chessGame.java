@@ -26,7 +26,6 @@ public class chessGame extends Application {
 
     private final int DIMENSION = 8;
     private ChessPiece[][] gamegrid = new ChessPiece[DIMENSION][DIMENSION];
-    private StackPane pane = new StackPane();
     private GridPane board = new GridPane();
     private BorderPane face = new BorderPane();
     private Boolean isSelected = false;
@@ -39,10 +38,8 @@ public class chessGame extends Application {
         setInitGameBoard();
         printGameBoard();
         face.setCenter(board);
-        pane.getChildren().add(face);
-        pane.setAlignment(Pos.CENTER);
         //pane.setRotate(180);
-        Scene scene2 = new Scene(pane);
+        Scene scene2 = new Scene(face);
 
         VBox startPane = new VBox();
         startPane.setPadding(new Insets(10));
@@ -103,9 +100,6 @@ public class chessGame extends Application {
             }
         }
     }
-    public void startMenu(){
-
-    }
     private void flash(Node n, Boolean off) {
         FadeTransition ft = new FadeTransition(Duration.millis(600), n);
         ft.setFromValue(1.0);
@@ -128,7 +122,7 @@ public class chessGame extends Application {
             }
         }
         return null;
-    }//
+    }
     //Sets initial game board grid
     private void setInitGameBoard() {
         for (int y = gamegrid.length - 1; y >= 0; y--) {
@@ -175,11 +169,11 @@ public class chessGame extends Application {
                         cp.setName(1 + "b");
                         piece = new Pieces2D("white", "bishop");
                     } else if (x == 3) {
-                        cp.setName(1 + "k");
-                        piece = new Pieces2D("white", "king");
-                    } else {
                         cp.setName(1 + "q");
                         piece = new Pieces2D("white", "queen");
+                    } else {
+                        cp.setName(1 + "k");
+                        piece = new Pieces2D("white", "king");
                     }
                 }
                 gamegrid[y][x] = cp;
@@ -190,17 +184,6 @@ public class chessGame extends Application {
                     if (piece.getColor().equals("black")) {
                         imgView.setRotate(180);
                     }
-                    imgView.setOnDragDetected(e -> {
-                        int column = board.getColumnIndex((Node) e.getSource());
-                        int row = board.getRowIndex((Node) e.getSource());
-                        if (!isSelected) {
-                            flash(getNode(row, column), isSelected);
-                            isSelected = true;
-                            //}
-                            //else {
-                            //    flash(getNode(row, column), isSelected);
-                        }
-                    });
                     board.add(imgView, x, y);
                 }
             }
