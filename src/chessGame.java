@@ -187,20 +187,20 @@ public class chessGame extends Application {
                     ImageView imgView = new ImageView(new Image(piece.getPieceURL()));
                     imgView.setFitHeight(75);
                     imgView.setFitWidth(75);
+                    if (piece.getColor().equals("black")) {
+                        imgView.setRotate(180);
+                    }
                     imgView.setOnDragDetected(e -> {
-
+                        int column = board.getColumnIndex((Node) e.getSource());
+                        int row = board.getRowIndex((Node) e.getSource());
+                        if (!isSelected) {
+                            flash(getNode(row, column), isSelected);
+                            isSelected = true;
+                            //}
+                            //else {
+                            //    flash(getNode(row, column), isSelected);
+                        }
                     });
-//                    imgView.setOnMouseClicked(e -> {
-//                        int column = board.getColumnIndex((Node) e.getSource());
-//                        int row = board.getRowIndex((Node) e.getSource());
-//                        if (!isSelected) {
-//                            flash(getNode(row, column), isSelected);
-//                            isSelected = true;
-//                            //}
-//                            //else {
-//                            //    flash(getNode(row, column), isSelected);
-//                        }
-//                    });
                     board.add(imgView, x, y);
                 }
             }
