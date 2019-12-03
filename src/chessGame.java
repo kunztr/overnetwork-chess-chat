@@ -38,6 +38,7 @@ public class chessGame extends Application {
         gameBoard();
         setInitGameBoard();
         printGameBoard();
+        testGame();
         face.setCenter(board);
         pane.getChildren().add(face);
         pane.setAlignment(Pos.CENTER);
@@ -175,11 +176,11 @@ public class chessGame extends Application {
                         cp.setName(1 + "b");
                         piece = new Pieces2D("white", "bishop");
                     } else if (x == 3) {
-                        cp.setName(1 + "k");
-                        piece = new Pieces2D("white", "king");
-                    } else {
                         cp.setName(1 + "q");
                         piece = new Pieces2D("white", "queen");
+                    } else {
+                        cp.setName(1 + "k");
+                        piece = new Pieces2D("white", "king");
                     }
                 }
                 gamegrid[y][x] = cp;
@@ -207,13 +208,101 @@ public class chessGame extends Application {
         }
     }
 
+    //Moves piece on grid.
+    //xO = old x coordinate, xN = new x coordinate, c = ChessPiece selected
+    private void movePiece(int xO, int yO, int xN, int yN){
+        ChessPiece temp = gamegrid[yO][xO];
+        gamegrid[yO][xO] = new ChessPiece("00");
+        gamegrid[yN][xN] = temp;
+        printGameBoard();
+        int[] kingCoordinates = findKingCoordinates();
+        boolean check = isInCheck(kingCoordinates[0], kingCoordinates[1]);
+        if(check){
+            System.out.println("After moving a " + gamegrid[yN][xN].name + ", your king IS in check.");
+        }
+        else{
+            System.out.println("After moving a " + gamegrid[yN][xN].name + ", your king IS NOT in check.");
+        }
+        //boolean checkmate = isInCheckmate();
+    }
+
+    private int[] findKingCoordinates(){
+        int[] coordinates = new int[2];
+        for (int y = 0; y < gamegrid.length; y++) {
+            for (int x = 0; x < gamegrid.length; x++) {
+                if (gamegrid[y][x].name.equals("1k"))
+                {
+                    coordinates[0] = x;
+                    coordinates[1] = y;
+                }
+            }
+        }
+        //System.out.println("King: X:" + coordinates[0] + ", Y:" + coordinates[1]);
+        return coordinates;
+    }
+
+    //Returns true if player 1 king is in check. The 2 parameters are the king's coordinates
+    private boolean isInCheck(int xCoor, int yCoor) {
+
+        //Pawns
+        if(gamegrid[yCoor][xCoor].checkPawn(gamegrid, xCoor, yCoor)){
+            return true;
+        }
+        //Knights
+        else if(gamegrid[yCoor][xCoor].checkKnight(gamegrid, xCoor, yCoor)){
+            return true;
+        }
+        //Rooks & Queen
+        else if(gamegrid[yCoor][xCoor].checkRook(gamegrid, xCoor, yCoor)){
+            return true;
+        }
+        //Bishops & Queen
+        else if(gamegrid[yCoor][xCoor].checkBishop(gamegrid, xCoor, yCoor)){
+            return true;
+        }
+        else if(gamegrid[yCoor][xCoor].checkKing(gamegrid, xCoor, yCoor)){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean isInCheckmate(){
+        //Finds king
+        int[] kCoor = findKingCoordinates();
+        int xCoor = kCoor[0];
+        int yCoor = kCoor[1];
+        boolean checkmate = false;
+        int[][] kings = {{-1, -1},{0, -1},{1, -1},{1, 0},{1, 1},{0, 1},{-1, 1},{-1, 0}};//Possible opposing king locations relative to king
+
+        for(int m = 0; m < kings.length; m++) {
+            if(xCoor + kings[m][0] >= 0 && xCoor + kings[m][0] < gamegrid.length && yCoor + kings[m][1] >= 0 && yCoor + kings[m][1] < gamegrid.length){
+                checkmate = isInCheck(kings[m][0], kings[m][1]);
+            }
+        }
+        return checkmate;
+    }
+
     //For testing
     private void printGameBoard(){
+        System.out.println("\n\n");
+        System.out.println("  0  1  2  3  4  5  6  7");
         for(int y = 0; y < gamegrid.length; y++) {
+            System.out.print(y + " ");
             for (int x = 0; x < gamegrid.length; x++) {
                 System.out.print(gamegrid[y][x].getName() + " ");
             }
             System.out.println();
         }
+    }
+    private void testGame(){
+        movePiece(4, 6, 3, 5);
+        movePiece(3, 6, 0, 2);
+
+       // movePiece(4, 0, 1, 4);
+        movePiece(6, 0, 5, 5);
+        //printGameBoard();
+
     }
 }
