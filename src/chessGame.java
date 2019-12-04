@@ -1,6 +1,7 @@
 import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -18,6 +19,8 @@ import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import java.io.*;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class chessGame extends Application {
@@ -33,6 +36,10 @@ public class chessGame extends Application {
     private Boolean isSelected = false;
     private ArrayList<Node> player1Graveyard = new ArrayList<>();
     private ArrayList<Node> player2Graveyard = new ArrayList<>();
+
+    Socket socket = null;
+    BufferedReader reader = null;
+    BufferedWriter writer = null;
 
     @Override
     public void start(Stage st) {
@@ -133,7 +140,7 @@ public class chessGame extends Application {
     private void setInitGameBoard() {
         for (int y = gamegrid.length - 1; y >= 0; y--) {
             for (int x = 0; x < gamegrid.length; x++) {
-                ChessPiece cp = new ChessPiece("00");
+                ChessPiece cp = new ChessPiece("00", 0, 0);
                 Pieces2D piece = new Pieces2D("null", "null");;
 
                 //black side and also player 2
@@ -144,18 +151,28 @@ public class chessGame extends Application {
                 else if (y == 0) {
                     if (x == 0 || x == 7) {
                         cp.setName(2 + "r");
+                        cp.setPlayerNum(2);
+                        cp.setOpponentNum(1);
                         piece = new Pieces2D("black", "rook");
                     } else if (x == 1 || x == 6) {
                         cp.setName(2 + "n");
+                        cp.setPlayerNum(2);
+                        cp.setOpponentNum(1);
                         piece = new Pieces2D("black", "knight");
                     } else if (x == 2 || x == 5) {
                         cp.setName(2 + "b");
+                        cp.setPlayerNum(2);
+                        cp.setOpponentNum(1);
                         piece = new Pieces2D("black", "bishop");
                     } else if (x == 3) {
                         cp.setName(2 + "k");
+                        cp.setPlayerNum(2);
+                        cp.setOpponentNum(1);
                         piece = new Pieces2D("black", "king");
                     } else if (x == 4) {
                         cp.setName(2 + "q");
+                        cp.setPlayerNum(2);
+                        cp.setOpponentNum(1);
                         piece = new Pieces2D("black", "queen");
                     }
                 }
@@ -167,18 +184,28 @@ public class chessGame extends Application {
                 else if (y == 7) {
                     if (x == 0 || x == 7) {
                         cp.setName(1 + "r");
+                        cp.setPlayerNum(1);
+                        cp.setOpponentNum(2);
                         piece = new Pieces2D("white", "rook");
                     } else if (x == 1 || x == 6) {
                         cp.setName(1 + "n");
+                        cp.setPlayerNum(1);
+                        cp.setOpponentNum(2);
                         piece = new Pieces2D("white", "knight");
                     } else if (x == 2 || x == 5) {
                         cp.setName(1 + "b");
+                        cp.setPlayerNum(1);
+                        cp.setOpponentNum(2);
                         piece = new Pieces2D("white", "bishop");
                     } else if (x == 3) {
                         cp.setName(1 + "q");
+                        cp.setPlayerNum(1);
+                        cp.setOpponentNum(2);
                         piece = new Pieces2D("white", "queen");
                     } else {
                         cp.setName(1 + "k");
+                        cp.setPlayerNum(1);
+                        cp.setOpponentNum(2);
                         piece = new Pieces2D("white", "king");
                     }
                 }
@@ -204,7 +231,7 @@ public class chessGame extends Application {
             if(!gamegrid[yN][xN].name.equals("00")){
                 player2Graveyard.add(tempNode);
             }
-            gamegrid[yO][xO] = new ChessPiece("00");
+            gamegrid[yO][xO] = new ChessPiece("00", 0, 0);
             gamegrid[yN][xN] = tempO;
             printGameBoard();
             int[] kingCoordinates = findKingCoordinates();
@@ -318,6 +345,30 @@ public class chessGame extends Application {
         movePiece(4, 0, 4, 4);
         movePiece(6, 0, 5, 5);
         //printGameBoard();
+
+    }
+
+    private void connect() throws Exception {
+        try {
+            socket = new Socket("144.39.254.237",5558);
+            System.out.println("Server: " + "Connection Established");
+        } catch (Exception ex) {
+            System.err.println(ex + "Client couldn't connect");
+        }
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+    }
+    private void sendMoveReceiveMove(ChessPiece c, int xCoor, int yCoor) throws IOException {
+        writer.write(c.name+"\r\n");
+        writer.write(xCoor+"\r\n");
+        writer.write(yCoor+"\r\n");
+        writer.flush();
+
+        String name = reader.readLine().trim();
+        int x = Integer.parseInt(reader.readLine().trim());
+        int y = Integer.parseInt(reader.readLine().trim());
+        //gridPane.add(new Button("X"),xcol,xrow);
+
 
     }
 }
