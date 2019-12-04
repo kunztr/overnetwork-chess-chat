@@ -6,7 +6,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -15,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -33,6 +33,7 @@ public class chessGame extends Application {
     private boolean isSelected = false;
     private int[] selected;
     private FadeTransition ft;
+    private boolean playerOneTurn = true;
     @Override
     public void start(Stage st) {
         board.setPadding(new Insets(5));
@@ -51,28 +52,54 @@ public class chessGame extends Application {
 
         Button chat = new Button("Chat");
         chat.setPrefSize(100, 50);
+        chat.setOnAction(e -> {
+            //TODO Dylan's do something if clicked chat button
+        });
 
         ImageView finish = new ImageView(new Image("https://png.pngtree.com/svg/20170809/icon_tips_finish_1179405.png"));
         finish.setFitHeight(100);
         finish.setFitWidth(100);
+        Button finishButton = new Button();
+        finishButton.setGraphic(finish);
+        finishButton.setShape(new Circle(1));
+        finishButton.setPadding(new Insets(1));
+        //ToDO Do logic for player turn
+        finishButton.setOnAction(e -> {
+            if (playerOneTurn) {
+                System.out.println("Player 1 turn");
+                playerOneTurn = false;
+            }
+            else {
+                System.out.println("Player 2 turn");
+                playerOneTurn = true;
+            }
+        });
 
         VBox v2 = new VBox();
-        v2.setPadding(new Insets(10, 10, 25, 10));
+        v2.setPadding(new Insets(20, 10, 25, 10));
         v2.setSpacing(50);
-
         ImageView checkmate = new ImageView(new Image("https://www1.opendining.net/hs-fs/hubfs/" +
                 "ItsaCheckmate-logo.png?width=2868&height=2615&name=ItsaCheckmate-logo.png"));
-        checkmate.setFitWidth(125);
-        checkmate.setFitHeight(125);
-//        checkmate.setOnAction(e -> {
-//            Label winmsg = new Label("You won");
-//            winmsg.setFont(new Font("Times New Roman", 20));
-//            stack.getChildren().add(winmsg);
-//            //winmsg.setTextFill(Color.Black);
-//        });
+        checkmate.setFitWidth(100);
+        checkmate.setFitHeight(100);
+        Button checkmateButton = new Button();
+        checkmateButton.setGraphic(checkmate);
+        checkmateButton.setShape(new Circle(1));
+        checkmateButton.setPadding(new Insets(0,10,10,10));
 
-        v.getChildren().addAll(finish, chat);
-        v2.getChildren().add(checkmate);
+        Text win = new Text("You are in Check Mate");
+        win.setFont(Font.font(50));
+        win.setVisible(false);
+        face.setTop(win);
+        face.setAlignment(win, Pos.CENTER);
+        //TODO still need logic for what happens if you get out of checkmate
+        checkmateButton.setOnAction(e -> {
+            win.setVisible(true);
+
+        });
+
+        v.getChildren().addAll(finishButton, chat);
+        v2.getChildren().add(checkmateButton);
         face.setCenter(stack);
         face.setRight(v);
         face.setLeft(v2);
@@ -109,7 +136,7 @@ public class chessGame extends Application {
         startBP.setAlignment(name, Pos.CENTER);
         startBP.setAlignment(startGame, Pos.BOTTOM_RIGHT);
         Scene mainMenuScene = new Scene(startBP);
-        st.setResizable(true);
+        st.setResizable(false);
         st.setTitle("Chess");
         st.setScene(mainMenuScene);
         st.show();
@@ -140,6 +167,7 @@ public class chessGame extends Application {
                         }
                         board.add(imgView, column, row);
                         board.getChildren().remove(getPiece(selected[0], selected[1]));
+                        movePiece(selected[1], selected[0], column, row);
                         isSelected = false;
                         ft.setOnFinished(null);
                     } else {
@@ -246,11 +274,11 @@ public class chessGame extends Application {
                         cp.setName(1 + "b");
                         piece = new Pieces2D("white", "bishop");
                     } else if (x == 3) {
-                        cp.setName(1 + "q");
-                        piece = new Pieces2D("white", "queen");
-                    } else {
                         cp.setName(1 + "k");
                         piece = new Pieces2D("white", "king");
+                    } else {
+                        cp.setName(1 + "q");
+                        piece = new Pieces2D("white", "queen");
                     }
                 }
                 gamegrid[y][x] = cp;
@@ -258,9 +286,9 @@ public class chessGame extends Application {
                     ImageView imgView = new ImageView(new Image(piece.getPieceURL()));
                     imgView.setFitHeight(75);
                     imgView.setFitWidth(75);
-                    if (piece.getColor().equals("black")) {
-                        imgView.setRotate(180);
-                    }
+                    //if (piece.getColor().equals("black")) {
+                    //    imgView.setRotate(180);
+                    //}
                     board.add(imgView, x, y);
                 }
             }
@@ -355,13 +383,13 @@ public class chessGame extends Application {
             System.out.println();
         }
     }
-    //private void testGame(){
-    //    movePiece(4, 6, 3, 5);
-    //    movePiece(3, 6, 0, 2);
-//
-    //   // movePiece(4, 0, 1, 4);
-    //    movePiece(6, 0, 5, 5);
-    //    //printGameBoard();
-//
-    //}
+    private void testGame(){
+        movePiece(4, 6, 3, 5);
+        movePiece(3, 6, 0, 2);
+
+       // movePiece(4, 0, 1, 4);
+        movePiece(6, 0, 5, 5);
+        //printGameBoard();
+
+    }
 }
