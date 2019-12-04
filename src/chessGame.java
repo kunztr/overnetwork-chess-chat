@@ -18,6 +18,8 @@ import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+
 public class chessGame extends Application {
 
     public static void main(String[] args) {
@@ -29,6 +31,9 @@ public class chessGame extends Application {
     private GridPane board = new GridPane();
     private BorderPane face = new BorderPane();
     private Boolean isSelected = false;
+    private ArrayList<Node> player1Graveyard = new ArrayList<>();
+    private ArrayList<Node> player2Graveyard = new ArrayList<>();
+
     @Override
     public void start(Stage st) {
         board.setPadding(new Insets(5));
@@ -194,19 +199,37 @@ public class chessGame extends Application {
     //Moves piece on grid.
     //xO = old x coordinate, xN = new x coordinate, c = ChessPiece selected
     private void movePiece(int xO, int yO, int xN, int yN){
-        ChessPiece temp = gamegrid[yO][xO];
-        gamegrid[yO][xO] = new ChessPiece("00");
-        gamegrid[yN][xN] = temp;
-        printGameBoard();
-        int[] kingCoordinates = findKingCoordinates();
-        boolean check = isInCheck(kingCoordinates[0], kingCoordinates[1]);
-        if(check){
-            System.out.println("After moving a " + gamegrid[yN][xN].name + ", your king IS in check.");
+            ChessPiece tempO = gamegrid[yO][xO];
+            Node tempNode = getNode(xN, yN);
+            if(!gamegrid[yN][xN].name.equals("00")){
+                player2Graveyard.add(tempNode);
+            }
+            gamegrid[yO][xO] = new ChessPiece("00");
+            gamegrid[yN][xN] = tempO;
+            printGameBoard();
+            int[] kingCoordinates = findKingCoordinates();
+            boolean check = isInCheck(kingCoordinates[0], kingCoordinates[1]);
+            if (check) {
+                System.out.println("After moving a " + gamegrid[yN][xN].name + ", your king IS in check.");
+            } else {
+                System.out.println("After moving a " + gamegrid[yN][xN].name + ", your king IS NOT in check.");
+            }
+            boolean checkmate = isInCheckmate();
+            if (checkmate) {
+                System.out.println("Your king IS in checkmate.");
+            } else {
+                System.out.println("Your king IS NOT in checkmate.");
+            }
+    }
+
+    private boolean isValidKingMove(int xO, int yO, int xN, int yN){
+        int[][] kings = {{-1, -1},{0, -1},{1, -1},{1, 0},{1, 1},{0, 1},{-1, 1},{-1, 0}};//Possible opposing king locations relative to king
+        for(int m = 0; m < kings.length; m++) {
+            if(xN == xO + kings[m][0] && yN == yO + kings[m][1]){
+                return true;
+            }
         }
-        else{
-            System.out.println("After moving a " + gamegrid[yN][xN].name + ", your king IS NOT in check.");
-        }
-        //boolean checkmate = isInCheckmate();
+        return false;
     }
 
     private int[] findKingCoordinates(){
@@ -258,19 +281,28 @@ public class chessGame extends Application {
         int yCoor = kCoor[1];
         boolean checkmate = false;
         int[][] kings = {{-1, -1},{0, -1},{1, -1},{1, 0},{1, 1},{0, 1},{-1, 1},{-1, 0}};//Possible opposing king locations relative to king
-
+        ArrayList<Boolean> checks = new ArrayList<>();
         for(int m = 0; m < kings.length; m++) {
-            if(xCoor + kings[m][0] >= 0 && xCoor + kings[m][0] < gamegrid.length && yCoor + kings[m][1] >= 0 && yCoor + kings[m][1] < gamegrid.length){
-                checkmate = isInCheck(kings[m][0], kings[m][1]);
+            if((xCoor + kings[m][0] >= 0 && xCoor + kings[m][0] < gamegrid.length && yCoor + kings[m][1] >= 0 && yCoor + kings[m][1] < gamegrid.length )){
+                if((gamegrid[yCoor + kings[m][1]][xCoor + kings[m][0]].name.contains("1"))){
+                    checks.add(true);
+                }
+                else {
+                    checks.add(isInCheck(xCoor + kings[m][0], yCoor + kings[m][1]));
+                }
             }
         }
-        return checkmate;
+        for(boolean check : checks){
+            if(!check){
+                return false;
+            }
+        }
+        return true;
     }
 
     //For testing
     private void printGameBoard(){
-        System.out.println("\n\n");
-        System.out.println("  0  1  2  3  4  5  6  7");
+        System.out.println("\n  0  1  2  3  4  5  6  7");
         for(int y = 0; y < gamegrid.length; y++) {
             System.out.print(y + " ");
             for (int x = 0; x < gamegrid.length; x++) {
@@ -283,7 +315,7 @@ public class chessGame extends Application {
         movePiece(4, 6, 3, 5);
         movePiece(3, 6, 0, 2);
 
-       // movePiece(4, 0, 1, 4);
+        movePiece(4, 0, 4, 4);
         movePiece(6, 0, 5, 5);
         //printGameBoard();
 
