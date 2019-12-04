@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
@@ -26,23 +27,59 @@ public class chessGame extends Application {
 
     private final int DIMENSION = 8;
     private ChessPiece[][] gamegrid = new ChessPiece[DIMENSION][DIMENSION];
+    private StackPane stack = new StackPane();
     private GridPane board = new GridPane();
     private BorderPane face = new BorderPane();
-    private Boolean isSelected = false;
+    private boolean isSelected = false;
     private int[] selected;
-    private int[] target;
+    private FadeTransition ft;
     @Override
     public void start(Stage st) {
         board.setPadding(new Insets(5));
         board.setBackground(new Background(new BackgroundFill(Color.BURLYWOOD, CornerRadii.EMPTY, Insets.EMPTY)));
         board.setMaxSize(500,500);
+        stack.getChildren().add(board);
+        stack.setAlignment(Pos.CENTER);
         gameBoard();
         setInitGameBoard();
         printGameBoard();
         //testGame();
-        face.setCenter(board);
+
+        VBox v = new VBox();
+        v.setPadding(new Insets(25, 10, 25, 10));
+        v.setSpacing(450);
+
+        Button chat = new Button("Chat");
+        chat.setPrefSize(100, 50);
+
+        ImageView finish = new ImageView(new Image("https://png.pngtree.com/svg/20170809/icon_tips_finish_1179405.png"));
+        finish.setFitHeight(100);
+        finish.setFitWidth(100);
+
+        VBox v2 = new VBox();
+        v2.setPadding(new Insets(10, 10, 25, 10));
+        v2.setSpacing(50);
+
+        ImageView checkmate = new ImageView(new Image("https://www1.opendining.net/hs-fs/hubfs/" +
+                "ItsaCheckmate-logo.png?width=2868&height=2615&name=ItsaCheckmate-logo.png"));
+        checkmate.setFitWidth(125);
+        checkmate.setFitHeight(125);
+//        checkmate.setOnAction(e -> {
+//            Label winmsg = new Label("You won");
+//            winmsg.setFont(new Font("Times New Roman", 20));
+//            stack.getChildren().add(winmsg);
+//            //winmsg.setTextFill(Color.Black);
+//        });
+
+        v.getChildren().addAll(finish, chat);
+        v2.getChildren().add(checkmate);
+        face.setCenter(stack);
+        face.setRight(v);
+        face.setLeft(v2);
+        face.setBackground(new Background((new BackgroundFill(Color.MOCCASIN, new CornerRadii(2), new Insets(0)))));
+
         //pane.setRotate(180);
-        Scene scene2 = new Scene(face);
+        Scene gameScene = new Scene(face);
 
         VBox startPane = new VBox();
         startPane.setPadding(new Insets(10));
@@ -59,23 +96,22 @@ public class chessGame extends Application {
         TextField Port = new TextField();
         Port.setMaxWidth(200);
 
-        Button button1 = new Button("Start Game");
-        button1.setPadding(new Insets(20));
-        button1.setOnAction(e ->
-                st.setScene(scene2)
+        Button startGame = new Button("Start Game");
+        startGame.setPadding(new Insets(20));
+        startGame.setOnAction(e ->
+                st.setScene(gameScene)
         );
         startPane.getChildren().addAll(IPLabel, IP, PortLabel, Port);
-        board.getChildren();
         BorderPane startBP = new BorderPane();
         startBP.setCenter(startPane);
-        startBP.setBottom(button1);
+        startBP.setBottom(startGame);
         startBP.setTop(name);
         startBP.setAlignment(name, Pos.CENTER);
-        startBP.setAlignment(button1, Pos.BOTTOM_RIGHT);
-        Scene scene = new Scene(startBP);
-        st.setResizable(false);
+        startBP.setAlignment(startGame, Pos.BOTTOM_RIGHT);
+        Scene mainMenuScene = new Scene(startBP);
+        st.setResizable(true);
         st.setTitle("Chess");
-        st.setScene(scene);
+        st.setScene(mainMenuScene);
         st.show();
     }
     private void gameBoard(){
@@ -91,89 +127,67 @@ public class chessGame extends Application {
                 rect.setOnMouseClicked(e -> {
                     int column = board.getColumnIndex((Node) e.getSource());
                     int row = board.getRowIndex((Node) e.getSource());
-                    if (!isSelected) {
-                        flash(getRectangle(row, column), isSelected);
-                        isSelected = true;
-                    }
-                    getPiece(row,column);
-//                    if (selected.length == 0) {
-//                        selected = new int[]{column, row};
-//                    }
-//                    else {
-//                        target = new int[]{column, row};
-//
-//                    }
-                    //getRectangle(row, column).getFill();
-                    //getPiece(row,column);
 
+                    if (isSelected) {
+                        double rotation = getPiece(selected[0], selected[1]).getRotate();
+                        Image img = getPiece(selected[0], selected[1]).getImage();
+                        ImageView imgView = new ImageView(img);
+                        imgView.setRotate(rotation);
+                        imgView.setFitHeight(75);
+                        imgView.setFitWidth(75);
+                        if (getPiece(row, column) != null) {
+                            board.getChildren().remove(getPiece(row, column));
+                        }
+                        board.add(imgView, column, row);
+                        board.getChildren().remove(getPiece(selected[0], selected[1]));
+                        isSelected = false;
+                        ft.setOnFinished(null);
+                    } else {
+                        if (getPiece(row, column) != null) {
+                            selected = new int[]{row, column};
+                            isSelected = true;
+                            ft = new FadeTransition(Duration.millis(600), getRectangle(selected[0], selected[1]));
+                            ft.setFromValue(1.0);
+                            ft.setToValue(0.1);
+                            ft.setAutoReverse(true);
+                            ft.setCycleCount(2);
+                            ft.play();
+                            ft.setOnFinished(event -> {
+                                ft.play();
+                            });
+                        }
+                        else {
+                            System.out.println("nothing inside");
+                        }
+                    }
                 });
                 board.add(rect, j, i);
             }
         }
     }
-    private void flash(Node n, Boolean off) {
-        FadeTransition ft = new FadeTransition(Duration.millis(600), n);
-        if (!off) {
-            //FadeTransition ft = new FadeTransition(Duration.millis(600), n);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.1);
-            ft.setAutoReverse(true);
-            ft.setCycleCount(Timeline.INDEFINITE);
-            ft.play();
-        }
-        else {
-            ft.pause();
-        }
-    }
+//    private void flash(Node n, Boolean off) {
+//        FadeTransition ft = new FadeTransition(Duration.millis(600), n);
+//        if (!off) {
+//            //FadeTransition ft = new FadeTransition(Duration.millis(600), n);
+//            ft.setFromValue(1.0);
+//            ft.setToValue(0.1);
+//            ft.setAutoReverse(true);
+//            ft.setCycleCount(Timeline.INDEFINITE);
+//            ft.play();
+//        }
+//        else {
+//            ft.pause();
+//        }
+//    }
 
     private ImageView getPiece(int row, int col) {
         if (col <= board.getColumnCount() && row <= board.getRowCount()) {
             for (Node node : board.getChildren()) {
                 if (node instanceof ImageView && GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
-                    board.getChildren().remove(node);
+                    return (ImageView)node;
                 }
             }
         }
-//        System.out.println(gamegrid[row][col].getName());
-//        String player;
-//        String name;
-//        if (gamegrid[row][col].getName().startsWith("1")){
-//            player = "white";
-//        }
-//        else if (gamegrid[row][col].getName().startsWith("2")){
-//            player = "black";
-//        }
-//        else {
-//            return null;
-//        }
-//
-//        if (gamegrid[row][col].getName().endsWith("r")){
-//            name = "rook";
-//        }
-//        else if (gamegrid[row][col].getName().endsWith("n")){
-//            name = "knight";
-//        }
-//        else if (gamegrid[row][col].getName().endsWith("b")){
-//            name = "bishop";
-//        }
-//        else if (gamegrid[row][col].getName().endsWith("k")){
-//            name = "king";
-//        }
-//        else if (gamegrid[row][col].getName().endsWith("q")) {
-//            name = "queen";
-//        }
-//        else{
-//            name = "pawn";
-//        }
-//        System.out.println(player + name);
-//        Pieces2D piece = new Pieces2D(player, name);
-//        ImageView imgView = new ImageView(new Image(piece.getPieceURL()));
-//        imgView.setFitHeight(75);
-//        imgView.setFitWidth(75);
-//        if (piece.getColor().equals("black")) {
-//            imgView.setRotate(180);
-//        }
-//        return imgView;
         return null;
     }
     private Rectangle getRectangle(int row, int col) {
@@ -191,7 +205,7 @@ public class chessGame extends Application {
         for (int y = gamegrid.length - 1; y >= 0; y--) {
             for (int x = 0; x < gamegrid.length; x++) {
                 ChessPiece cp = new ChessPiece("00");
-                Pieces2D piece = new Pieces2D("null", "null");;
+                Pieces2D piece = new Pieces2D("null", "null");
 
                 //black side and also player 2
                 if (y == 1) {
