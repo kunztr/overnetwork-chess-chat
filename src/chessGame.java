@@ -29,6 +29,8 @@ public class chessGame extends Application {
     private GridPane board = new GridPane();
     private BorderPane face = new BorderPane();
     private Boolean isSelected = false;
+    private int[] selected;
+    private int[] target;
     @Override
     public void start(Stage st) {
         board.setPadding(new Insets(5));
@@ -37,7 +39,7 @@ public class chessGame extends Application {
         gameBoard();
         setInitGameBoard();
         printGameBoard();
-        testGame();
+        //testGame();
         face.setCenter(board);
         //pane.setRotate(180);
         Scene scene2 = new Scene(face);
@@ -63,7 +65,7 @@ public class chessGame extends Application {
                 st.setScene(scene2)
         );
         startPane.getChildren().addAll(IPLabel, IP, PortLabel, Port);
-
+        board.getChildren();
         BorderPane startBP = new BorderPane();
         startBP.setCenter(startPane);
         startBP.setBottom(button1);
@@ -90,12 +92,20 @@ public class chessGame extends Application {
                     int column = board.getColumnIndex((Node) e.getSource());
                     int row = board.getRowIndex((Node) e.getSource());
                     if (!isSelected) {
-                        flash(getNode(row, column), isSelected);
+                        flash(getRectangle(row, column), isSelected);
                         isSelected = true;
-                        //}
-                        //else {
-                        //    flash(getNode(row, column), isSelected);
                     }
+                    getPiece(row,column);
+//                    if (selected.length == 0) {
+//                        selected = new int[]{column, row};
+//                    }
+//                    else {
+//                        target = new int[]{column, row};
+//
+//                    }
+                    //getRectangle(row, column).getFill();
+                    //getPiece(row,column);
+
                 });
                 board.add(rect, j, i);
             }
@@ -103,22 +113,74 @@ public class chessGame extends Application {
     }
     private void flash(Node n, Boolean off) {
         FadeTransition ft = new FadeTransition(Duration.millis(600), n);
-        ft.setFromValue(1.0);
-        ft.setToValue(0.1);
-        ft.setAutoReverse(true);
-        ft.setCycleCount(Timeline.INDEFINITE);
-        ft.play();
-        if (off) {
+        if (!off) {
+            //FadeTransition ft = new FadeTransition(Duration.millis(600), n);
+            ft.setFromValue(1.0);
+            ft.setToValue(0.1);
+            ft.setAutoReverse(true);
+            ft.setCycleCount(Timeline.INDEFINITE);
+            ft.play();
+        }
+        else {
             ft.pause();
         }
     }
 
-
-    private Node getNode(int row, int col) {
+    private ImageView getPiece(int row, int col) {
+        if (col <= board.getColumnCount() && row <= board.getRowCount()) {
+            for (Node node : board.getChildren()) {
+                if (node instanceof ImageView && GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
+                    board.getChildren().remove(node);
+                }
+            }
+        }
+//        System.out.println(gamegrid[row][col].getName());
+//        String player;
+//        String name;
+//        if (gamegrid[row][col].getName().startsWith("1")){
+//            player = "white";
+//        }
+//        else if (gamegrid[row][col].getName().startsWith("2")){
+//            player = "black";
+//        }
+//        else {
+//            return null;
+//        }
+//
+//        if (gamegrid[row][col].getName().endsWith("r")){
+//            name = "rook";
+//        }
+//        else if (gamegrid[row][col].getName().endsWith("n")){
+//            name = "knight";
+//        }
+//        else if (gamegrid[row][col].getName().endsWith("b")){
+//            name = "bishop";
+//        }
+//        else if (gamegrid[row][col].getName().endsWith("k")){
+//            name = "king";
+//        }
+//        else if (gamegrid[row][col].getName().endsWith("q")) {
+//            name = "queen";
+//        }
+//        else{
+//            name = "pawn";
+//        }
+//        System.out.println(player + name);
+//        Pieces2D piece = new Pieces2D(player, name);
+//        ImageView imgView = new ImageView(new Image(piece.getPieceURL()));
+//        imgView.setFitHeight(75);
+//        imgView.setFitWidth(75);
+//        if (piece.getColor().equals("black")) {
+//            imgView.setRotate(180);
+//        }
+//        return imgView;
+        return null;
+    }
+    private Rectangle getRectangle(int row, int col) {
         if (col <= board.getColumnCount() && row <= board.getRowCount()) {
             for (Node node : board.getChildren()) {
                 if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-                    return node;
+                    return (Rectangle)node;
                 }
             }
         }
@@ -279,13 +341,13 @@ public class chessGame extends Application {
             System.out.println();
         }
     }
-    private void testGame(){
-        movePiece(4, 6, 3, 5);
-        movePiece(3, 6, 0, 2);
-
-       // movePiece(4, 0, 1, 4);
-        movePiece(6, 0, 5, 5);
-        //printGameBoard();
-
-    }
+    //private void testGame(){
+    //    movePiece(4, 6, 3, 5);
+    //    movePiece(3, 6, 0, 2);
+//
+    //   // movePiece(4, 0, 1, 4);
+    //    movePiece(6, 0, 5, 5);
+    //    //printGameBoard();
+//
+    //}
 }
